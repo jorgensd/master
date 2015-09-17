@@ -1,0 +1,7 @@
+[user]
+name = Lars Petter Karstensen
+email = larspkar@math.uio.no
+editor = emacs
+
+[core]
+exludesfile = ~/.gitignore
