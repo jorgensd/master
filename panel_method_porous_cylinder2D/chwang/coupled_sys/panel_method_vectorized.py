@@ -31,18 +31,17 @@ def panel_method_vectorized(a, b, N, Z, bpor=0.5, d=0.1,
         return np.log(r)*v
 
     # Importing weight and points for gauss quad int 
-    from readdata import readdata
-    w_, p_ = readdata('weightsAndPoints%s.txt' % ngc)
-    
+    from scipy import special as sp
+    p, w_ = sp.legendre(ngc).weights[:, :-1].T
+    p, w_ = p.reshape(ngc, 1), w_.reshape(ngc, 1)
+        
     # Calculating the opening angle, theta, and solving the rhs integral
-    # using 64 point Gauss method.
+    # using <n> point Gauss method.
     for i in xrange(N):
         b = abs(cz[i] - Z[1:])
         c = abs(cz[i] - Z[:-1])
         theta[i] = np.arccos((b**2 + c**2 - L**2) / (2*b*c))
-        #intLog[i] = 0.5 * L * ( np.log(b) + np.log(c) ) # Trapz
-        for (wi, pi) in zip(w_, p_):
-            intLog[i] += wi * GQ(x[:-1], x[1:], cx[i], y[:-1], y[1:], cy[i], pi)
+        intLog[i] = np.sum(w_* GQ(x[:-1], x[1:], cx[i], y[:-1], y[1:], cy[i], p), 0)
     np.fill_diagonal(theta, np.pi)
     
     # See appendix A

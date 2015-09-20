@@ -8,6 +8,7 @@ try:
     N = eval(sys.argv[3])
     geom = sys.argv[4]
     progtype = sys.argv[5]
+    ng = int(sys.argv[6])
 except IndexError:
     print '\n Usage: %s a b N geom progtype \n' % sys.argv[0]
     print ' a, b     - Major and minor radius for ellipse'
@@ -15,6 +16,7 @@ except IndexError:
     print ' N        - number of panels'
     print ' geom     - ellipse or rectangle'
     print ' progtype - pyvec/pyfort\n'
+    print ' ng       - degree of quass quad\n'
     sys.exit(0)
 
 if progtype == 'pyvec':
@@ -38,7 +40,7 @@ else:
     sys.exit(0)
 
 start = time.clock()
-m11, m22, m12, m66 = panel_method(a, b, N, Z)
+m11, m22, m12, m66 = panel_method(a, b, N, Z, ng)
 end = time.clock()
 
 print '-----------------------------------------------'

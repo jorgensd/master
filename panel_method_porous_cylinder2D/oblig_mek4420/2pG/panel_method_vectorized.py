@@ -1,8 +1,6 @@
 import numpy as np, sys
-import cmath as cm
-from math import log, sqrt
 
-def panel_method_vectorized(a, b, N, Z):
+def panel_method_vectorized(a, b, N, Z, ng):
     
     cz = 0.5 * (Z[1:] + Z[:-1])           # complex midpoint
     cx = cz.real                          # x-coor panel midpoint
@@ -22,31 +20,28 @@ def panel_method_vectorized(a, b, N, Z):
         r = np.sqrt((0.5*(x0*(1-t)+x1*(1+t))-xm)**2+(0.5*(y0*(1-t)+y1*(1+t))-ym)**2)
         v = 0.5 * np.sqrt((x1 - x0)**2 + (y1 - y0)**2)
         return np.log(r)*v
-
-    #
-    def TpG2(x0, x1, xm, y0, y1, ym, t):
-        r = np.sqrt((0.5*(x0*(1-t)+x1*(1+t))-xm)**2+(0.5*(y0*(1-t)+y1*(1+t))-ym)**2)
-        v = 0.5 * np.sqrt((x1 - x0)**2 + (y1 - y0)**2)
-        return v / r
     
     # Weights and points for gauss quad
-    from readdata import readdata
-    w, p = readdata('weightAndPoints.txt')
-        
+    # from readdata import readdata
+    # w, p = readdata('weightsAndPoints%s.txt' % ng)
+
+    # Importing weight and points for gauss quad int 
+    from scipy import special as sp
+    p, w = sp.legendre(ng).weights[:, :-1].T
+    p, w = p.reshape(ng, 1), w.reshape(ng, 1)
+
     # Opening angle given by the law of cosines
     for i in xrange(N):
         b = abs(cz[i] - Z[1:])
         c = abs(cz[i] - Z[:-1])
-        #P[i] = -np.arccos((b**2 + c**2 - L**2) / (2*b*c))
-        for (wi, pi) in zip(w, p):
-                q[i] += wi * TpG(x[:-1], x[1:], cx[i], y[:-1], y[1:], cy[i], pi)
-                P[i] -= wi * TpG2(x[:-1], x[1:], cx[i], y[:-1], y[1:], cy[i], pi)
+        P[i] = -np.arccos((b**2 + c**2 - L**2) / (2*b*c))
+        q[i] = np.sum(w * TpG(x[:-1], x[1:], cx[i], y[:-1], y[1:], cy[i], p), 0)
 
     P[np.isnan(P)] = 0 # Needed for rectangle
-    #np.fill_diagonal(P, -np.pi) # phi = -pi, for i = j
+    np.fill_diagonal(P, -np.pi) # phi = -pi, for i = j
     
     # RHS
-    Q = np.transpose([np.dot(q,n1),np.dot(q,n2),np.dot(q,(cx*n2 - cy*n1))])
+    Q = np.transpose([np.dot(q, n1), np.dot(q, n2), np.dot(q, (cx*n2 - cy*n1))])
 
     # Velocity potential for each panel
     phi_i = np.linalg.solve(P, Q)

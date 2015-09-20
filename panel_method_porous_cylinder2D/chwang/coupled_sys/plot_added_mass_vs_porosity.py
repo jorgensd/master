@@ -8,7 +8,7 @@ try:
     b = eval(sys.argv[2])
     N = eval(sys.argv[3])
     progtype = sys.argv[4]
-    ngc = sys.argv[5]
+    ngc = int(sys.argv[5])
 except IndexError:
     print '\n Usage: %s a b N progtype \n' % sys.argv[0]
     print ' a, b     - Major and minor radius for ellipse'

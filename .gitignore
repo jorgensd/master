@@ -29,6 +29,9 @@ temp*
 *.toc
 *.snm
 *.vrb
+*.fmt
+*.prv
+*_.tex
 # eclipse files:
 *.cproject
 *.project
